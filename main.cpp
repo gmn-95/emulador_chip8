@@ -148,6 +148,7 @@ void loadROM() {
    //1 - abre o arquivo
    //rb significa read binary
    FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
+   // FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
 
    //2 - verifica se encontrou o arquivo
    if (rom == nullptr) {
@@ -261,6 +262,30 @@ void executarCicloDECODEeEXECUTE() {
          //JUMP
          NNN = Chip8.opcode & 0x0FFF;
          Chip8.PC = NNN;
+         break;
+      case 0x3000:
+         //Instrução de comparação/SKIP
+
+         X = (Chip8.opcode & 0x0F00) >> 8;
+         NN = Chip8.opcode & 0x00FF;
+
+         //Se registrador V na posição X for igual ao valor NN, pulamos a instruçao de PC para a próxima instrução
+         //Pula se igual
+         if (Chip8.V[X] == NN) {
+            Chip8.PC += 2; //pulamos uma instrução. Tem que ser += pq uma instrução no Chip8 ocupa 2 bytes
+         }
+         break;
+      case 0x4000:
+         //Instrução de comparação/SKIP
+         //Basicamente quase a mesma coisa da instrução 3XNN (0x3000), porém só testamos o inverso
+
+         X = (Chip8.opcode & 0x0F00) >> 8;
+         NN = Chip8.opcode & 0x00FF;
+
+         //Pula se diferente
+         if (Chip8.V[X] != NN) {
+            Chip8.PC += 2;
+         }
          break;
       case 0x6000:
          //seta registrador V[X]
