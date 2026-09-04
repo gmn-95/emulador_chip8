@@ -147,8 +147,8 @@ void executaLimpezaDoDiplsay() {
 void loadROM() {
    //1 - abre o arquivo
    //rb significa read binary
-   FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
-   // FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
+   // FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
+   FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
 
    //2 - verifica se encontrou o arquivo
    if (rom == nullptr) {
@@ -363,41 +363,71 @@ void executarCicloDECODEeEXECUTE() {
          N = Chip8.opcode & 0x000F;
 
          switch (N) {
-            case 0:
+            case 0x0:
+               //COPIA
+
                //V[X] recebe V[Y]
                Chip8.V[X] = Chip8.V[Y];
                break;
-            case 1:
+            case 0x1:
+               //OR
+
                //V[X] = V[X] OR V[Y]
                Chip8.V[X] = Chip8.V[X] | Chip8.V[Y];
                break;
-            case 2:
+            case 0x2:
+               //AND
+
                //V[X] = V[X] AND V[Y]
                Chip8.V[X] = Chip8.V[X] & Chip8.V[Y];
                break;
-            case 3:
+            case 0x3:
+               //XOR
+
                //V[X] = V[X] XOR V[Y]
                Chip8.V[X] = Chip8.V[X] ^ Chip8.V[Y];
                break;
-            case 4:
+            case 0x4:
+               //Soma + Carry(Quando uma soma passa do valor possível de ser armazenado) em VF
+
                //V[X] = V[X] + V[Y]
                Chip8.V[15] = (Chip8.V[X] + Chip8.V[Y]) > 255 ? 1 : 0;
                Chip8.V[X] = Chip8.V[X] + Chip8.V[Y];
                break;
-            case 5:
+            case 0x5:
+               //Subtração + Borroy(Quando uma subtração é um número menor que o possível de ser armazenado) em VF
+
                //V[X] = V[X] - V[Y]
                Chip8.V[15] = Chip8.V[X] >= Chip8.V[Y] ? 1 : 0;
                Chip8.V[X] = Chip8.V[X] - Chip8.V[Y];
                break;
-            case 6:
-               //Shift
+            case 0x6: {
+               //Shift right (desloca V[X] 1 bit para a direita) pega o bit mais significativo
+
+               //Armazena o bit que "cai fora" em V[F]
+               //Usamos 0x01 pq é o mesmo que 00000001
+               uint8_t restRight = Chip8.V[X] & 0x01;
+               Chip8.V[X] = Chip8.V[X] >> 1;
+               Chip8.V[15] = restRight;
                break;
-            case 7:
+            }
+            case 0x7:
+               // subtração invertida + borrow em VF
                //V[X] = V[Y] - V[X]
                Chip8.V[15] = Chip8.V[Y] >= Chip8.V[X] ? 1 : 0;
                Chip8.V[X] = Chip8.V[Y] - Chip8.V[X];
                break;
+            case 0xE: {
+               //Shift left (desloca V[X] 1 bit para a esquerda) pega o bit mais significativo
 
+               //Armazena o bit que "cai fora" em V[F]
+               //Usamos 0x80 pq é o mesmo que 10000000
+               //desloca 7 bits pra direita para saber se é 1 ou 0
+               uint8_t restLeft = (Chip8.V[X] & 0x80) >> 7;
+               Chip8.V[X] = Chip8.V[X] << 1;
+               Chip8.V[15] = restLeft;
+               break;
+            }
          }
          break;
       case 0xA000:
