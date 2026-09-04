@@ -9,7 +9,7 @@
 constexpr int SCREEN_WIDTH = 64;
 constexpr int SCREEN_HEIGHT = 32;
 constexpr int SCALE = 10;
-constexpr int RAM_SIZE = 4096;
+constexpr int RAM_SIZE = 4096; //4kb de RAM
 
 constexpr int LINHAS_FONTE = 16;
 constexpr int COLUNAS_FONTE = 5;
@@ -187,7 +187,8 @@ void executarCicloFETCH() {
 
    uint8_t segundoByte = Chip8.memoriaRam[Chip8.PC + 1];
 
-   //as instruções nas ROM's são sempre formadas por um conjunto de 2 bytes. Ex: 0x61 + 0x0A = 0x610A
+   //as instruções nas ROM's são sempre formadas por um conjunto de 2 bytes (16 bits(8 bits + 8 bits)). Ex: 0x61 + 0x0A = 0x610A
+   //Portanto preciamos juntas esses bytes
    //"<<" significa shift left, desloca X bits à esquerda
    Chip8.opcode = (primeiroByte << 8) | segundoByte; //instrução montada
 
@@ -242,6 +243,10 @@ void executarCicloFETCH() {
 //    std::cout << "Valor Hexa: " << std::showbase << std::hex << Chip8.DECODE_TESTE.valor << std::endl;
 // }
 
+/**
+ * Etapa em que a CPU pega o opcode que veio do FETCH e descobre/decifra o que ele significa. Ele interpreta o opcode,
+ * para que o EXECUTE saiba o que fazer
+ */
 void executarCicloDECODEeEXECUTE() {
    uint16_t mascaraTipoInstrucao = 0xF000; //1111 0000 0000 0000
    uint16_t X;
