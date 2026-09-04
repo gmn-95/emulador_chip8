@@ -353,6 +353,53 @@ void executarCicloDECODEeEXECUTE() {
 
          Chip8.V[X] += NN;
          break;
+
+      case 0x8000:
+         //Instrução 8XY? - Reúne várias operações entre registradores
+         // Operações OR, AND, XOR, SOMA, SUBTRACAO
+
+         X = (Chip8.opcode & 0x0F00) >> 8;
+         Y = (Chip8.opcode & 0x00F0) >> 4;
+         N = Chip8.opcode & 0x000F;
+
+         switch (N) {
+            case 0:
+               //V[X] recebe V[Y]
+               Chip8.V[X] = Chip8.V[Y];
+               break;
+            case 1:
+               //V[X] = V[X] OR V[Y]
+               Chip8.V[X] = Chip8.V[X] | Chip8.V[Y];
+               break;
+            case 2:
+               //V[X] = V[X] AND V[Y]
+               Chip8.V[X] = Chip8.V[X] & Chip8.V[Y];
+               break;
+            case 3:
+               //V[X] = V[X] XOR V[Y]
+               Chip8.V[X] = Chip8.V[X] ^ Chip8.V[Y];
+               break;
+            case 4:
+               //V[X] = V[X] + V[Y]
+               Chip8.V[15] = (Chip8.V[X] + Chip8.V[Y]) > 255 ? 1 : 0;
+               Chip8.V[X] = Chip8.V[X] + Chip8.V[Y];
+               break;
+            case 5:
+               //V[X] = V[X] - V[Y]
+               Chip8.V[15] = Chip8.V[X] >= Chip8.V[Y] ? 1 : 0;
+               Chip8.V[X] = Chip8.V[X] - Chip8.V[Y];
+               break;
+            case 6:
+               //Shift
+               break;
+            case 7:
+               //V[X] = V[Y] - V[X]
+               Chip8.V[15] = Chip8.V[Y] >= Chip8.V[X] ? 1 : 0;
+               Chip8.V[X] = Chip8.V[Y] - Chip8.V[X];
+               break;
+
+         }
+         break;
       case 0xA000:
          //seta registrador I
          NNN = Chip8.opcode & 0x0FFF;
@@ -393,6 +440,8 @@ void executarCicloDECODEeEXECUTE() {
                      Chip8.V[15] = 1;
                   }
 
+                  //Aqui usamos o XOR (^), que significa que só é verdadeiro quando os dois forem diferentes
+                  //ou seja, se que conter em Chip8.display[posY + linha][posX + coluna] for diferente de 1
                   Chip8.display[posY + linha][posX + coluna] ^= 1; //Se estiver, o pixel correspondente do display já está ligado?
                }
 
