@@ -256,19 +256,18 @@ void executarCicloDECODEeEXECUTE() {
    uint16_t NNN;
 
    switch (Chip8.opcode & mascaraTipoInstrucao) {
-      case 0x0000:
-         if (Chip8.opcode == 0x00E0) {
+      case 0x0000://Execute machine language routine
+         if (Chip8.opcode == 0x00E0) {//Clear screen
             //CLEAR
             executaLimpezaDoDiplsay();
          }
          break;
 
-      case 0x1000:
-         //JUMP
+      case 0x1000: //JUMP
          NNN = Chip8.opcode & 0x0FFF;
          Chip8.PC = NNN;
          break;
-      case 0x3000:
+      case 0x3000:// Skip conditionally
          //Instrução de comparação/SKIP
 
          X = (Chip8.opcode & 0x0F00) >> 8;
@@ -280,7 +279,7 @@ void executarCicloDECODEeEXECUTE() {
             Chip8.PC += 2; //pulamos uma instrução. Tem que ser += pq uma instrução no Chip8 ocupa 2 bytes
          }
          break;
-      case 0x4000:
+      case 0x4000: //Skip conditionally
          //Instrução de comparação/SKIP
          //Basicamente quase a mesma coisa da instrução 3XNN (0x3000), porém só testamos o inverso
 
@@ -292,7 +291,7 @@ void executarCicloDECODEeEXECUTE() {
             Chip8.PC += 2;
          }
          break;
-      case 0x5000:
+      case 0x5000: //Skip conditionally
 
          if (Chip8.opcode & 0x000F) {
             //instrução que compara dois registradores e pula uma instrução se V[x] e V[y] forem iguais
@@ -321,7 +320,7 @@ void executarCicloDECODEeEXECUTE() {
             }
          }
          break;
-      case 0x9000:
+      case 0x9000: //Skip conditionally
          //9XY0
          //Faz o inverso da instrução 0x5000, se V[X] e V[Y] nao forem iguais, ai sim pula uma instrução
          X = (Chip8.opcode & 0x0F00) >> 8;
@@ -331,7 +330,7 @@ void executarCicloDECODEeEXECUTE() {
             Chip8.PC += 2;
          }
          break;
-      case 0x6000:
+      case 0x6000: //Set
          //seta registrador V[X]
          /**
          * Ex:
@@ -435,7 +434,7 @@ void executarCicloDECODEeEXECUTE() {
          NNN = Chip8.opcode & 0x0FFF;
          Chip8.I = NNN;
          break;
-      case 0xD000:
+      case 0xD000: {
          //DESENHA
 
          /**
@@ -478,6 +477,19 @@ void executarCicloDECODEeEXECUTE() {
             }
          }
          break;
+      }
+      case 0xB000://Jump with offset
+         NNN = Chip8.opcode & 0x0FFF;
+         Chip8.PC = NNN + Chip8.V[0];
+         break;
+
+      case 0xC000: {//Random
+         X = (Chip8.opcode & 0x0F00) >> 8;
+         NN = Chip8.opcode & 0x00FF;
+         uint8_t valAleatorio = rand() % 256;
+         Chip8.V[X] = valAleatorio & NN;
+         break;
+      }
    }
 }
 
