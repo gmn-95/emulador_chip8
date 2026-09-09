@@ -42,16 +42,16 @@ struct {
 
    //memoria
    // Area reservada de 0x000-0x1FF
-   uint8_t memoriaRam[RAM_SIZE];
+   uint8_t memoriaRam[RAM_SIZE]{};
 
    //registradores
-   uint8_t V[16]; //16 registradores de 8 bits. V0, V1, V2, ... VE, VF
+   uint8_t V[16]{}; //16 registradores de 8 bits. V0, V1, V2, ... VE, VF
    uint16_t I = 0; // registrador de endereço. Usado para apontar locais na memória
 
    //program counter // programas chip-8 são carregados na memória a partir do endereço 0x200
    uint16_t PC = 0x200; //endereço da próxima instrução. Começa em 0x200 pois é onde a ROM inicia, ou seja, a primeira instrução dela
 
-   uint16_t opcode; // sequencia de bits que representa uma instrução especifica (ex: aritimético, lógico, controle. Tais como: adição, comparação, subtração, etc)
+   uint16_t opcode{}; // sequencia de bits que representa uma instrução especifica (ex: aritimético, lógico, controle. Tais como: adição, comparação, subtração, etc)
 
    // struct {
    //    // identifica o tipo da instrução
@@ -64,26 +64,26 @@ struct {
    //    uint16_t valor;
    // } DECODE_TESTE;
 
-   uint8_t display[32][64];
+   uint8_t display[32][64]{};
    // timers;
    // teclado;
 
 } Chip8;
 
 //apenas reservando a memória
-void reservaMemoria() {
+static void reservaMemoria() {
    for (unsigned char& i : Chip8.memoriaRam) {
       i = 0;
    }
 }
 
-void adicionaFonteNaMemoria() {
+static void adicionaFonteNaMemoria() {
    for (int i = 0; i < sizeof(Chip8.fontes); i++) {
       Chip8.memoriaRam[0x050 + i] = Chip8.fontes[i];
    }
 }
 
-void renderizaPixelsTeste(SDL_Renderer* renderer) {
+static void renderizaPixelsTeste(SDL_Renderer* renderer) {
    int posicao = 100;
 
    //DESENHA NA TELAQ
@@ -116,7 +116,7 @@ void renderizaPixelsTeste(SDL_Renderer* renderer) {
 
 }
 
-void renderizaPixels(SDL_Renderer* renderer) {
+static void renderizaPixels(SDL_Renderer* renderer) {
    for (int linha = 0; linha < SCREEN_HEIGHT; linha++) {
       for (int coluna = 0; coluna < SCREEN_WIDTH; coluna++) {
 
@@ -135,7 +135,7 @@ void renderizaPixels(SDL_Renderer* renderer) {
    }
 }
 
-void executaLimpezaDoDiplsay() {
+static void executaLimpezaDoDiplsay() {
    for (int linha = 0; linha < SCREEN_HEIGHT; linha++) {
       for (int coluna = 0; coluna < SCREEN_WIDTH; coluna++) {
          Chip8.display[linha][coluna] = 0;
@@ -146,7 +146,7 @@ void executaLimpezaDoDiplsay() {
 /**
  * Carrega a ROM na "memoria" RAM
  */
-void loadROM() {
+static void loadROM() {
    //1 - abre o arquivo
    //rb significa read binary
    // FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
@@ -183,7 +183,7 @@ void loadROM() {
 /**
  * Etapa comumente chamada de FETCH: onde a CPU busca a próxima instrução da memória no PC
  */
-void executarCicloFETCH() {
+static void executarCicloFETCH() {
 
    uint8_t primeiroByte = Chip8.memoriaRam[Chip8.PC];
 
@@ -495,7 +495,7 @@ void executarCicloDECODEeEXECUTE() {
 
       case 0xE000: {//Skip if key
          X = (Chip8.opcode & 0x0F00) >> 8;
-         
+
          switch (Chip8.opcode & 0x00FF) {
             case 0x9E: {//Pula instrução se tecla pressionada
                if (Chip8.teclas[Chip8.V[X]] == 1) {
@@ -519,7 +519,7 @@ void executarCicloDECODEeEXECUTE() {
    }
 }
 
-int gameLoop() {
+static int gameLoop() {
 
    if (!SDL_Init(SDL_INIT_VIDEO)) {
       SDL_Log("Erro ao inicializar SDL: %s", SDL_GetError());
@@ -578,7 +578,7 @@ int gameLoop() {
 }
 
 
-void initChip8() {
+static void initChip8() {
    reservaMemoria();
    loadROM();
    adicionaFonteNaMemoria();
