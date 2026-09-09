@@ -100,10 +100,10 @@ static void renderizaPixelsTeste(SDL_Renderer* renderer) {
          bool pixelLigado = byteLinha & (0x80 >> coluna);
          if (pixelLigado) {
             SDL_FRect pixel = {
-               static_cast<float>(100 + coluna * SCALE), //posição X que deve ser pintado
-               static_cast<float>(100 + linha * SCALE), //posição Y que deve ser pintado
-               static_cast<float>(SCALE), //largura que deve ser pintado
-               static_cast<float>(SCALE) //altura que deve ser pintado
+               .x = static_cast<float>(100 + coluna * SCALE), //posição X que deve ser pintado
+               .y = static_cast<float>(100 + linha * SCALE), //posição Y que deve ser pintado
+               .w = static_cast<float>(SCALE), //largura que deve ser pintado
+               .h = static_cast<float>(SCALE) //altura que deve ser pintado
             };
 
             SDL_RenderFillRect(renderer, &pixel);
