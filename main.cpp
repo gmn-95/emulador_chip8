@@ -495,8 +495,7 @@ void executarCicloDECODEeEXECUTE() {
 
       case 0xE000: {//Skip if key
          X = (Chip8.opcode & 0x0F00) >> 8;
-
-
+         
          switch (Chip8.opcode & 0x00FF) {
             case 0x9E: {//Pula instrução se tecla pressionada
                if (Chip8.teclas[Chip8.V[X]] == 1) {
