@@ -19,6 +19,8 @@ struct {
    //uint8_t representa inteiros sem sinal de 8 bits (1 byte)
    //uint16_t representa inteiros sem sinal de 16 bits (2 bytes)
 
+   uint8_t teclas[16] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+
    uint8_t fontes[80] = {
       0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
       0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -490,6 +492,31 @@ void executarCicloDECODEeEXECUTE() {
          Chip8.V[X] = valAleatorio & NN;
          break;
       }
+
+      case 0xE000: {//Skip if key
+         X = (Chip8.opcode & 0x0F00) >> 8;
+
+
+         switch (Chip8.opcode & 0x00FF) {
+            case 0x9E: {//Pula instrução se tecla pressionada
+               if (Chip8.teclas[Chip8.V[X]] == 1) {
+                  Chip8.PC += 2;
+               }
+               break;
+            }
+
+            case 0xA1: {//Pula instrução se tecla não pressionada
+               if (Chip8.teclas[Chip8.V[X]] == 0) {
+                  Chip8.PC += 2;
+               }
+               break;
+            }
+            default: break;
+         }
+      }
+
+
+      default: break;
    }
 }
 
