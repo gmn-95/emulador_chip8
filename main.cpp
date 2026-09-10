@@ -19,7 +19,24 @@ struct {
    //uint8_t representa inteiros sem sinal de 8 bits (1 byte)
    //uint16_t representa inteiros sem sinal de 16 bits (2 bytes)
 
-   uint8_t teclas[16] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+   uint8_t teclas[16] = {
+      0x0, // X
+      0x1, // 1
+      0x2, // 2
+      0x3, // 3
+      0x4, // Q
+      0x5, // W
+      0x6, // E
+      0x7, // A
+      0x8, // S
+      0x9, // D
+      0xA, // Z
+      0xB, // C
+      0xC, // 4
+      0xD, // R
+      0xE, // F
+      0xF  // V
+   };
 
    uint8_t fontes[80] = {
       0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -519,6 +536,41 @@ void executarCicloDECODEeEXECUTE() {
    }
 }
 
+static int mapTecladoAtualToChip8(const SDL_Keycode &key) {
+   if (key == SDLK_1) return 0x1;
+   if (key == SDLK_2) return 0x2;
+   if (key == SDLK_3) return 0x3;
+   if (key == SDLK_4) return 0xC;
+   if (key == SDLK_Q) return 0x4;
+   if (key == SDLK_W) return 0x5;
+   if (key == SDLK_E) return 0x6;
+   if (key == SDLK_R) return 0xD;
+   if (key == SDLK_A) return 0x7;
+   if (key == SDLK_S) return 0x8;
+   if (key == SDLK_D) return 0x9;
+   if (key == SDLK_F) return 0xE;
+   if (key == SDLK_Z) return 0xA;
+   if (key == SDLK_X) return 0x0;
+   if (key == SDLK_C) return 0xB;
+   if (key == SDLK_V) return 0xF;
+
+   return -1;
+}
+
+static void registraTecla(const SDL_Event &event) {
+   const SDL_Keycode key = event.key.key;
+   int indiceTeclado = mapTecladoAtualToChip8(key);
+
+   if (indiceTeclado == -1)  return;
+
+   if (event.type == SDL_EVENT_KEY_DOWN) {
+      Chip8.teclas[indiceTeclado] = 1;
+   } else if (event.type == SDL_EVENT_KEY_UP) {
+      Chip8.teclas[indiceTeclado] = 0;
+   }
+}
+
+
 static int gameLoop() {
 
    if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -546,6 +598,9 @@ static int gameLoop() {
       SDL_Event event;
 
       while (SDL_PollEvent(&event)) {
+         registraTecla(event);
+
+
          if (event.type == SDL_EVENT_QUIT) {
             running = false;
          }
@@ -564,6 +619,7 @@ static int gameLoop() {
       // renderizaPixelsTeste(renderer);
       executarCicloFETCH();
       executarCicloDECODEeEXECUTE();
+
       renderizaPixels(renderer);
 
 
