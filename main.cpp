@@ -82,6 +82,9 @@ struct {
    // } DECODE_TESTE;
 
    uint8_t display[32][64]{};
+
+   uint8_t delayTimer = 0;
+   uint8_t soundTimer = 0;
    // timers;
    // teclado;
 
@@ -529,6 +532,32 @@ void executarCicloDECODEeEXECUTE() {
             }
             default: break;
          }
+
+         break;
+      }
+
+      case 0xF000: {//timers
+         X = (Chip8.opcode & 0x0F00) >> 8;
+
+         switch (Chip8.opcode & 0x00FF) {
+            case 0x07: {
+               Chip8.V[X] = Chip8.delayTimer;
+               break;
+            }
+
+            case 0x15: {
+               Chip8.delayTimer = Chip8.V[X];
+               break;
+            }
+
+            case 0x18: {
+               Chip8.soundTimer = Chip8.V[X];
+               break;
+            }
+            default: break;
+         }
+
+         break;
       }
 
 
@@ -600,7 +629,6 @@ static int gameLoop() {
       while (SDL_PollEvent(&event)) {
          registraTecla(event);
 
-
          if (event.type == SDL_EVENT_QUIT) {
             running = false;
          }
@@ -619,9 +647,7 @@ static int gameLoop() {
       // renderizaPixelsTeste(renderer);
       executarCicloFETCH();
       executarCicloDECODEeEXECUTE();
-
       renderizaPixels(renderer);
-
 
       // Mostra o frame
       SDL_RenderPresent(renderer);
