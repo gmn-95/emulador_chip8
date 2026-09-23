@@ -11,8 +11,11 @@ constexpr int SCREEN_HEIGHT = 32;
 constexpr int SCALE = 10;
 constexpr int RAM_SIZE = 4096; //4kb de RAM
 
+constexpr double intervaloTimer = 1000.0 / 60.0;
+
 constexpr int LINHAS_FONTE = 16;
 constexpr int COLUNAS_FONTE = 5;
+
 
 struct {
 
@@ -83,7 +86,10 @@ struct {
 
    uint8_t display[32][64]{};
 
+   //é um contador de tempo que a ROM pode consultar. Ele serve para o jogo medir esperas, intervalos, velocidade de alguma lógica etc.
    uint8_t delayTimer = 0;
+
+   //determina enquanto o beep fica ativo
    uint8_t soundTimer = 0;
    // timers;
    // teclado;
@@ -599,6 +605,17 @@ static void registraTecla(const SDL_Event &event) {
    }
 }
 
+static void atualizarTimers(Uint64 ticksAgora, Uint64& ultimoTickTimer) {
+
+   double tempoPassado = ticksAgora - ultimoTickTimer;
+
+   //1/60 = 16,67 ms
+   if (tempoPassado >= intervaloTimer) {
+      if (Chip8.delayTimer > 0) Chip8.delayTimer--;
+      if (Chip8.soundTimer > 0) Chip8.soundTimer--;
+      ultimoTickTimer = ticksAgora;
+   }
+}
 
 static int gameLoop() {
 
@@ -623,6 +640,8 @@ static int gameLoop() {
 
    bool running = true;
 
+   Uint64 ultimoTickTimer = SDL_GetTicks();
+
    while (running) {
       SDL_Event event;
 
@@ -634,7 +653,6 @@ static int gameLoop() {
          }
       }
 
-
       //Cor da tela
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
@@ -642,6 +660,9 @@ static int gameLoop() {
       SDL_RenderClear(renderer);
       //cor da linha
       SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+      Uint64 ticksAgora = SDL_GetTicks();
+      atualizarTimers(ticksAgora, ultimoTickTimer);
 
       //DESENHA NA TELAQ
       // renderizaPixelsTeste(renderer);
