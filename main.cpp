@@ -280,7 +280,7 @@ static void executarCicloFETCH() {
  */
 void executarCicloDECODEeEXECUTE() {
    uint16_t mascaraTipoInstrucao = 0xF000; //1111 0000 0000 0000
-   uint16_t X;
+   uint16_t X = 0;
    uint16_t Y;
    uint16_t N;
    uint16_t NN;
@@ -578,9 +578,16 @@ void executarCicloDECODEeEXECUTE() {
                } else {// senao: impede que CPU avance a instrução
                   Chip8.PC -= 2;
                }
+
+               break;
             }
 
             default: break;
+         }
+
+         case 0x0E: { //mode o ponteiro I para frente, usando como deslocamento o valor que esta em V[X]
+            Chip8.I += Chip8.V[X]; // avança I pelo valor armazenado em V[X]
+            break;
          }
 
          break;
@@ -689,7 +696,7 @@ static int gameLoop() {
       // renderizaPixelsTeste(renderer);
       double intervaloCPU = umSegundo / qntdInstrucoesPorSegundo;
 
-      if ((ticksAgora - ultimoTickCPU) >= intervaloCPU) {
+      if ((ticksAgora - ultimoTickCPU) >= intervaloCPU) { //atrasa um pouco a CPU pra não executar rápido demais
          executarCicloFETCH();
          executarCicloDECODEeEXECUTE();
          renderizaPixels(renderer);
