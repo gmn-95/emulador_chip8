@@ -16,6 +16,9 @@ constexpr double intervaloTimer = 1000.0 / 60.0;
 constexpr int LINHAS_FONTE = 16;
 constexpr int COLUNAS_FONTE = 5;
 
+constexpr double qntdInstrucoesPorSegundo = 700;
+constexpr double umSegundo = 1000;
+
 
 struct {
 
@@ -641,6 +644,7 @@ static int gameLoop() {
    bool running = true;
 
    Uint64 ultimoTickTimer = SDL_GetTicks();
+   Uint64 ultimoTickCPU = SDL_GetTicks();
 
    while (running) {
       SDL_Event event;
@@ -666,12 +670,16 @@ static int gameLoop() {
 
       //DESENHA NA TELAQ
       // renderizaPixelsTeste(renderer);
-      executarCicloFETCH();
-      executarCicloDECODEeEXECUTE();
-      renderizaPixels(renderer);
+      double intervaloCPU = umSegundo / qntdInstrucoesPorSegundo;
 
-      // Mostra o frame
-      SDL_RenderPresent(renderer);
+      if ((ticksAgora - ultimoTickCPU) >= intervaloCPU) {
+         executarCicloFETCH();
+         executarCicloDECODEeEXECUTE();
+         renderizaPixels(renderer);
+         // Mostra o frame
+         SDL_RenderPresent(renderer);
+         ultimoTickCPU = ticksAgora;
+      }
    }
 
    SDL_DestroyWindow(window);
