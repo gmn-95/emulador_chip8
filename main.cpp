@@ -563,6 +563,23 @@ void executarCicloDECODEeEXECUTE() {
                Chip8.soundTimer = Chip8.V[X];
                break;
             }
+
+            case 0x0A: { //Espera tecla ser pressionada e guarda qual foi ela
+               uint8_t teclaPressionada = 0;
+               for (int i = 0; i < 15; i++) {
+                  if (Chip8.teclas[i] == 1) {
+                     teclaPressionada = Chip8.V[X];
+                     break;
+                  }
+               }
+
+               if (teclaPressionada != 0) {
+                  Chip8.V[X] = teclaPressionada; //indice da tecla
+               } else {// senao: impede que CPU avance a instrução
+                  Chip8.PC -= 2;
+               }
+            }
+
             default: break;
          }
 
