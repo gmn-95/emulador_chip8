@@ -634,6 +634,14 @@ void executarCicloDECODEeEXECUTE() {
             break;
          }
 
+         case 0x65: {//Le da memoria e preenche V0 até V[X]
+            for (int i = 0; i <= X; i++) {
+               Chip8.V[i] = Chip8.memoriaRam[Chip8.I + i];
+            }
+
+            break;
+         }
+
          break;
       }
 
