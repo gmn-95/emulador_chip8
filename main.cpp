@@ -605,6 +605,26 @@ void executarCicloDECODEeEXECUTE() {
             break;
          }
 
+         case 0x33: { //Salva o valor de V[X] em formato BCD na memoria (BCD significa: Separar um número decimal em centena, dezena e unidade
+            /**
+             * Ex:
+             *
+             * 234 / 100 = 2
+             * 234 / 10 = 23
+             * 23 % 10 = 3
+             * 234 % 10 = 4
+             */
+            int centena = Chip8.V[X] / 100;
+            int dezena = (Chip8.V[X] / 10) % 10;
+            int unidade = Chip8.V[X] % 10;
+
+            Chip8.memoriaRam[Chip8.I] = centena;
+            Chip8.memoriaRam[Chip8.I + 1] = dezena;
+            Chip8.memoriaRam[Chip8.I + 2] = unidade;
+
+            break;
+         }
+
          break;
       }
 
