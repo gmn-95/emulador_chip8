@@ -181,7 +181,8 @@ static void loadROM() {
    //1 - abre o arquivo
    //rb significa read binary
    // FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
-   FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
+   // FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
+   FILE* rom = fopen("rom_teste/test_opcode.ch8", "rb");
 
    //2 - verifica se encontrou o arquivo
    if (rom == nullptr) {
