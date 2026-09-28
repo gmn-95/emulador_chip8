@@ -63,6 +63,8 @@ struct {
       0xF0, 0x80, 0xF0, 0x80, 0x80  // F
    };
 
+   const uint8_t FONT_START = 0x050;
+
    //memoria
    // Area reservada de 0x000-0x1FF
    uint8_t memoriaRam[RAM_SIZE]{};
@@ -587,6 +589,19 @@ void executarCicloDECODEeEXECUTE() {
 
          case 0x0E: { //mode o ponteiro I para frente, usando como deslocamento o valor que esta em V[X]
             Chip8.I += Chip8.V[X]; // avança I pelo valor armazenado em V[X]
+            break;
+         }
+
+         case 0x29: {//conecta fontes 0 a F com registrador I
+
+            /**
+             * - Pega V[X]: Representa um dígito de 0 a F
+             * - Multiplica por 5, porque cada sprite ocupa 5 bytes
+             * - Soma com o endereço inicial das fontes
+             * - salva no resigrador I
+             */
+            Chip8.I = Chip8.FONT_START + Chip8.V[X] * 5;
+
             break;
          }
 
