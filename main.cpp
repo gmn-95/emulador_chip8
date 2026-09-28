@@ -625,6 +625,15 @@ void executarCicloDECODEeEXECUTE() {
             break;
          }
 
+         case 0x55: {//serve para copiar os registradores V0 até V[X] para a memória, começando no endereço apontado por I
+
+            for (int i = 0; i <= X; i++) {
+               Chip8.memoriaRam[Chip8.I + i] = Chip8.V[i];
+            }
+
+            break;
+         }
+
          break;
       }
 
