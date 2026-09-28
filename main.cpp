@@ -614,9 +614,9 @@ void executarCicloDECODEeEXECUTE() {
              * 23 % 10 = 3
              * 234 % 10 = 4
              */
-            int centena = Chip8.V[X] / 100;
-            int dezena = (Chip8.V[X] / 10) % 10;
-            int unidade = Chip8.V[X] % 10;
+            uint8_t centena = Chip8.V[X] / 100;
+            uint8_t dezena = (Chip8.V[X] / 10) % 10;
+            uint8_t unidade = Chip8.V[X] % 10;
 
             Chip8.memoriaRam[Chip8.I] = centena;
             Chip8.memoriaRam[Chip8.I + 1] = dezena;
