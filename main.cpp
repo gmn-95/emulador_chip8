@@ -282,6 +282,12 @@ void executarCicloDECODEeEXECUTE() {
             //CLEAR
             executaLimpezaDoDiplsay();
          }
+
+         if (Chip8.opcode == 0x00EE) {
+            Chip8.sp--;
+            Chip8.PC = Chip8.stack[Chip8.sp];
+         }
+
          break;
 
       case 0x1000: //JUMP
