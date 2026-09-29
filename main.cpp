@@ -82,6 +82,9 @@ struct {
    // timers;
    // teclado;
 
+   uint16_t stack[16]{};
+   uint8_t sp = 0; //Onde estamos na stack
+
 } Chip8;
 
 //apenas reservando a memória
@@ -166,6 +169,7 @@ static void loadROM() {
    // FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
    FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
    // FILE* rom = fopen("rom_teste/test_opcode.ch8", "rb");
+   // FILE* rom = fopen("rom_teste/Brick (Brix hack, 1990).ch8", "rb");
 
    //2 - verifica se encontrou o arquivo
    if (rom == nullptr) {
@@ -270,7 +274,7 @@ void executarCicloDECODEeEXECUTE() {
    uint16_t Y;
    uint16_t N;
    uint16_t NN;
-   uint16_t NNN;
+   uint16_t NNN = 0;
 
    switch (Chip8.opcode & mascaraTipoInstrucao) {
       case 0x0000://Execute machine language routine
@@ -284,6 +288,15 @@ void executarCicloDECODEeEXECUTE() {
          NNN = Chip8.opcode & 0x0FFF;
          Chip8.PC = NNN;
          break;
+
+      case 0x2000: //call de subrotina. "chama a subrotina que começa com NNN
+         NNN = Chip8.opcode & 0x0FFF;
+
+         Chip8.stack[Chip8.sp] = Chip8.PC;
+         Chip8.sp++;
+         Chip8.PC = NNN;
+         break;
+
       case 0x3000:// Skip conditionally
          //Instrução de comparação/SKIP
 
