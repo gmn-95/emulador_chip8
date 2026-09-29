@@ -25,24 +25,7 @@ struct {
    //uint8_t representa inteiros sem sinal de 8 bits (1 byte)
    //uint16_t representa inteiros sem sinal de 16 bits (2 bytes)
 
-   uint8_t teclas[16] = {
-      0x0, // X
-      0x1, // 1
-      0x2, // 2
-      0x3, // 3
-      0x4, // Q
-      0x5, // W
-      0x6, // E
-      0x7, // A
-      0x8, // S
-      0x9, // D
-      0xA, // Z
-      0xB, // C
-      0xC, // 4
-      0xD, // R
-      0xE, // F
-      0xF  // V
-   };
+   uint8_t teclas[16] = {};
 
    uint8_t fontes[80] = {
       0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -181,8 +164,8 @@ static void loadROM() {
    //1 - abre o arquivo
    //rb significa read binary
    // FILE* rom = fopen("rom_teste/IBM Logo.ch8", "rb");
-   // FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
-   FILE* rom = fopen("rom_teste/test_opcode.ch8", "rb");
+   FILE* rom = fopen("rom_teste/Pong (1 player).ch8", "rb");
+   // FILE* rom = fopen("rom_teste/test_opcode.ch8", "rb");
 
    //2 - verifica se encontrou o arquivo
    if (rom == nullptr) {
@@ -327,7 +310,7 @@ void executarCicloDECODEeEXECUTE() {
          break;
       case 0x5000: //Skip conditionally
 
-         if (Chip8.opcode & 0x000F) {
+         if ((Chip8.opcode & 0x000F) == 0) {
             //instrução que compara dois registradores e pula uma instrução se V[x] e V[y] forem iguais
             /**
              * 5XY0
@@ -360,7 +343,7 @@ void executarCicloDECODEeEXECUTE() {
          X = (Chip8.opcode & 0x0F00) >> 8;
          Y = (Chip8.opcode & 0x00F0) >> 4;
 
-         if (Chip8.V[X] != Y) {
+         if (Chip8.V[X] != Chip8.V[Y]) {
             Chip8.PC += 2;
          }
          break;
@@ -584,65 +567,63 @@ void executarCicloDECODEeEXECUTE() {
 
                break;
             }
+            case 0x1E: { //mode o ponteiro I para frente, usando como deslocamento o valor que esta em V[X]
+               Chip8.I += Chip8.V[X]; // avança I pelo valor armazenado em V[X]
+               break;
+            }
+
+            case 0x29: {//conecta fontes 0 a F com registrador I
+
+               /**
+                * - Pega V[X]: Representa um dígito de 0 a F
+                * - Multiplica por 5, porque cada sprite ocupa 5 bytes
+                * - Soma com o endereço inicial das fontes
+                * - salva no resigrador I
+                */
+               Chip8.I = Chip8.FONT_START + Chip8.V[X] * 5;
+
+               break;
+            }
+
+            case 0x33: { //Salva o valor de V[X] em formato BCD na memoria (BCD significa: Separar um número decimal em centena, dezena e unidade
+               /**
+                * Ex:
+                *
+                * 234 / 100 = 2
+                * 234 / 10 = 23
+                * 23 % 10 = 3
+                * 234 % 10 = 4
+                */
+               uint8_t centena = Chip8.V[X] / 100;
+               uint8_t dezena = (Chip8.V[X] / 10) % 10;
+               uint8_t unidade = Chip8.V[X] % 10;
+
+               Chip8.memoriaRam[Chip8.I] = centena;
+               Chip8.memoriaRam[Chip8.I + 1] = dezena;
+               Chip8.memoriaRam[Chip8.I + 2] = unidade;
+
+               break;
+            }
+
+            case 0x55: {//serve para copiar os registradores V0 até V[X] para a memória, começando no endereço apontado por I
+
+               for (int i = 0; i <= X; i++) {
+                  Chip8.memoriaRam[Chip8.I + i] = Chip8.V[i];
+               }
+
+               break;
+            }
+
+            case 0x65: {//Le da memoria e preenche V0 até V[X]
+               for (int i = 0; i <= X; i++) {
+                  Chip8.V[i] = Chip8.memoriaRam[Chip8.I + i];
+               }
+
+               break;
+            }
 
             default: break;
          }
-
-         case 0x0E: { //mode o ponteiro I para frente, usando como deslocamento o valor que esta em V[X]
-            Chip8.I += Chip8.V[X]; // avança I pelo valor armazenado em V[X]
-            break;
-         }
-
-         case 0x29: {//conecta fontes 0 a F com registrador I
-
-            /**
-             * - Pega V[X]: Representa um dígito de 0 a F
-             * - Multiplica por 5, porque cada sprite ocupa 5 bytes
-             * - Soma com o endereço inicial das fontes
-             * - salva no resigrador I
-             */
-            Chip8.I = Chip8.FONT_START + Chip8.V[X] * 5;
-
-            break;
-         }
-
-         case 0x33: { //Salva o valor de V[X] em formato BCD na memoria (BCD significa: Separar um número decimal em centena, dezena e unidade
-            /**
-             * Ex:
-             *
-             * 234 / 100 = 2
-             * 234 / 10 = 23
-             * 23 % 10 = 3
-             * 234 % 10 = 4
-             */
-            uint8_t centena = Chip8.V[X] / 100;
-            uint8_t dezena = (Chip8.V[X] / 10) % 10;
-            uint8_t unidade = Chip8.V[X] % 10;
-
-            Chip8.memoriaRam[Chip8.I] = centena;
-            Chip8.memoriaRam[Chip8.I + 1] = dezena;
-            Chip8.memoriaRam[Chip8.I + 2] = unidade;
-
-            break;
-         }
-
-         case 0x55: {//serve para copiar os registradores V0 até V[X] para a memória, começando no endereço apontado por I
-
-            for (int i = 0; i <= X; i++) {
-               Chip8.memoriaRam[Chip8.I + i] = Chip8.V[i];
-            }
-
-            break;
-         }
-
-         case 0x65: {//Le da memoria e preenche V0 até V[X]
-            for (int i = 0; i <= X; i++) {
-               Chip8.V[i] = Chip8.memoriaRam[Chip8.I + i];
-            }
-
-            break;
-         }
-
          break;
       }
 
