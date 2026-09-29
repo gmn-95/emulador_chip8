@@ -340,12 +340,15 @@ void executarCicloDECODEeEXECUTE() {
       case 0x9000: //Skip conditionally
          //9XY0
          //Faz o inverso da instrução 0x5000, se V[X] e V[Y] nao forem iguais, ai sim pula uma instrução
-         X = (Chip8.opcode & 0x0F00) >> 8;
-         Y = (Chip8.opcode & 0x00F0) >> 4;
+         if ((Chip8.opcode & 0x000F) == 0) {
+            X = (Chip8.opcode & 0x0F00) >> 8;
+            Y = (Chip8.opcode & 0x00F0) >> 4;
 
-         if (Chip8.V[X] != Chip8.V[Y]) {
-            Chip8.PC += 2;
+            if (Chip8.V[X] != Chip8.V[Y]) {
+               Chip8.PC += 2;
+            }
          }
+
          break;
       case 0x6000: //Set
          //seta registrador V[X]
